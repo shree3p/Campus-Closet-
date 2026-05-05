@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="panel-heading">
+        <p class="eyebrow">Admin moderation starter</p>
+        <h1>Admin Dashboard</h1>
+        <p class="lead">This is only a first-pass placeholder so the moderation workflow from the SRS has a visible home.</p>
+    </div>
+
+    <div class="profile-grid">
+        <div class="profile-card">
+            <span class="profile-label">Pending reports</span>
+            <strong>{{ pending_reports }}</strong>
+        </div>
+        <div class="profile-card">
+            <span class="profile-label">Total users</span>
+            <strong>{{ total_users }}</strong>
+        </div>
+        <div class="profile-card">
+            <span class="profile-label">Total listings</span>
+            <strong>{{ total_listings }}</strong>
+        </div>
+    </div>
+
+    <div class="callout">
+        Next team steps can plug in report review, listing removal, warnings, suspension actions, and activity history here.
+    </div>
+</section>
+{% endblock %}
+

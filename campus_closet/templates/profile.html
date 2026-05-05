@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="panel-heading">
+        <p class="eyebrow">Account summary</p>
+        <h1>{{ user.name }}</h1>
+        <p class="lead">This starter profile matches the User/Profile split described in the SRS and professor guide.</p>
+    </div>
+
+    <div class="profile-grid">
+        <div class="profile-card">
+            <span class="profile-label">Username</span>
+            <strong>@{{ user.username }}</strong>
+        </div>
+        <div class="profile-card">
+            <span class="profile-label">Email</span>
+            <strong>{{ user.email }}</strong>
+        </div>
+        <div class="profile-card">
+            <span class="profile-label">Role</span>
+            <strong>{{ user.role|title }}</strong>
+        </div>
+        <div class="profile-card">
+            <span class="profile-label">Contact preference</span>
+            <strong>{{ user.profile.contact_preferences or "In-app messages" }}</strong>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Listings | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+    <div>
+        <p class="eyebrow">Main marketplace screen</p>
+        <h1>Browse Campus Listings</h1>
+        <p class="lead">This starter page follows the Week 1 goal: log in, browse listings, open listing details, and leave clear paths for the rest of the team.</p>
+    </div>
+    <div class="section-grid">
+        <a class="section-tile" href="{{ url_for('main.create_listing') }}">
+            <strong>Create Listing</strong>
+            <span>Form structure started</span>
+        </a>
+        <a class="section-tile" href="{{ url_for('main.favorites') }}">
+            <strong>Favorites</strong>
+            <span>Placeholder ready for bridge logic</span>
+        </a>
+        <a class="section-tile" href="{{ url_for('main.messages') }}">
+            <strong>Messages</strong>
+            <span>Conversation area prepared</span>
+        </a>
+        <a class="section-tile" href="{{ url_for('main.profile') }}">
+            <strong>Profile</strong>
+            <span>Starter account summary</span>
+        </a>
+    </div>
+</section>
+
+<section class="panel">
+    <form method="get" class="filter-form">
+        <div class="field-group">
+            <label for="search">Search listings</label>
+            <input id="search" name="search" type="text" placeholder="lamp, jacket, calculator..." value="{{ search }}">
+        </div>
+        <div class="field-group">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+                <option value="">All categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="primary-button filter-button">Apply Filters</button>
+    </form>
+</section>
+
+<section class="listing-grid">
+    {% for listing in listings %}
+        <article class="listing-card">
+            <div class="listing-top">
+                <span class="pill">{{ listing.category.name }}</span>
+                <span class="status">{{ listing.availability_status }}</span>
+            </div>
+            <h2>{{ listing.title }}</h2>
+            <p>{{ listing.description }}</p>
+            <dl class="listing-meta">
+                <div>
+                    <dt>Condition</dt>
+                    <dd>{{ listing.item_condition }}</dd>
+                </div>
+                <div>
+                    <dt>Pickup</dt>
+                    <dd>{{ listing.pickup_location }}</dd>
+                </div>
+            </dl>
+            <div class="card-footer">
+                <span>Posted by {{ listing.owner.username }}</span>
+                <a class="text-link" href="{{ url_for('main.listing_detail', listing_id=listing.id) }}">View Details</a>
+            </div>
+        </article>
+    {% else %}
+        <div class="empty-state">
+            <h2>No listings matched that search.</h2>
+            <p>Try a different keyword or switch back to all categories.</p>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
+

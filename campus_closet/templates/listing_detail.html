@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}{{ listing.title }} | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="detail-layout">
+    <div class="detail-image">
+        <div class="image-placeholder">
+            <span>{{ listing.category.name }}</span>
+        </div>
+    </div>
+    <div class="detail-card">
+        <div class="listing-top">
+            <span class="pill">{{ listing.category.name }}</span>
+            <span class="status">{{ listing.availability_status }}</span>
+        </div>
+        <h1>{{ listing.title }}</h1>
+        <p class="lead">{{ listing.description }}</p>
+
+        <dl class="detail-meta">
+            <div>
+                <dt>Condition</dt>
+                <dd>{{ listing.item_condition }}</dd>
+            </div>
+            <div>
+                <dt>Pickup location</dt>
+                <dd>{{ listing.pickup_location }}</dd>
+            </div>
+            <div>
+                <dt>Owner</dt>
+                <dd>{{ listing.owner.name }} (@{{ listing.owner.username }})</dd>
+            </div>
+        </dl>
+
+        <div class="detail-actions">
+            <a class="primary-button" href="{{ url_for('main.messages') }}">Message Owner</a>
+            <a class="secondary-button" href="{{ url_for('main.favorites') }}">Save</a>
+            <a class="secondary-button" href="{{ url_for('main.admin_dashboard') if current_user.is_admin else url_for('main.profile') }}">Report</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

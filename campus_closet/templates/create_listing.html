@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Create Listing | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="panel form-panel">
+    <div class="panel-heading">
+        <p class="eyebrow">Week 1 scaffold</p>
+        <h1>Create Listing</h1>
+        <p class="lead">The layout and field names are started here so the backend and database team can connect to them next.</p>
+    </div>
+
+    <form method="post" class="listing-form">
+        <div class="field-group">
+            <label for="title">Title</label>
+            <input id="title" name="title" type="text" placeholder="Desk lamp, jacket, calculator..." />
+        </div>
+        <div class="field-group">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="condition">Condition</label>
+            <select id="condition" name="condition">
+                <option>New</option>
+                <option>Very Good</option>
+                <option>Good</option>
+                <option>Fair</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="pickup_location">Pickup location</label>
+            <input id="pickup_location" name="pickup_location" type="text" placeholder="Student Center, Buley Library..." />
+        </div>
+        <div class="field-group full-width">
+            <label for="availability">Availability</label>
+            <input id="availability" name="availability" type="text" placeholder="Available, Pending Pickup, Claimed..." />
+        </div>
+        <div class="field-group full-width">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="5" placeholder="Add the item details, any wear, and where pickup works best."></textarea>
+        </div>
+        <div class="field-group full-width">
+            <label for="image_url">Optional image link</label>
+            <input id="image_url" name="image_url" type="text" placeholder="Image upload can be wired in next." />
+        </div>
+
+        <div class="callout">
+            This form is intentionally scaffolded instead of fully finished so your teammates can still implement and commit the database save flow.
+        </div>
+
+        <button type="submit" class="primary-button">Save Next-Step Placeholder</button>
+    </form>
+</section>
+{% endblock %}
+
