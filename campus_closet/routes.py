@@ -313,23 +313,13 @@ def create_listing():
 @main_bp.route("/favorites")
 @login_required
 def favorites():
-    return render_template(
-        "placeholder.html",
-        page_title="Favorites",
-        heading="Saved Listings Placeholder",
-        description="The Favorites section is wired into the project navigation and ready for the bridge-table logic from the ER diagram.",
-    )
+    return render_template("blank_section.html", page_title="Favorites")
 
 
 @main_bp.route("/messages")
 @login_required
 def messages():
-    return render_template(
-        "placeholder.html",
-        page_title="Messages",
-        heading="Messages Placeholder",
-        description="This section matches the SRS conversation flow and is ready for conversation and message integration next.",
-    )
+    return render_template("blank_section.html", page_title="Messages")
 
 
 @main_bp.route("/profile")

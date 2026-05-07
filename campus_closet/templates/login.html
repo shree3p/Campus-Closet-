@@ -8,14 +8,17 @@
         <p class="eyebrow">Southern Connecticut State University</p>
         <h1>Campus Closet</h1>
         <p class="lead">A simple campus-only place for students to share clothing, dorm items, and school supplies.</p>
+        <div class="auth-owl-panel">
+            <img class="auth-owl-logo" src="{{ url_for('main.static', filename='images/owls-athletics-logo.png') }}" alt="Southern Connecticut State University Owls logo">
+            <div class="auth-owl-caption">
+                <strong>Southern Owls</strong>
+                <span>Campus Closet is built for the SCSU community.</span>
+            </div>
+        </div>
         <div class="feature-list">
             <div class="feature-card">
                 <strong>Trusted access</strong>
                 <span>Only `@southernct.edu` accounts belong in the first version.</span>
-            </div>
-            <div class="feature-card">
-                <strong>Week 1 focus</strong>
-                <span>Login, browsing, section layout, and a starter database foundation.</span>
             </div>
             <div class="feature-card">
                 <strong>Built for SCSU</strong>
@@ -47,4 +50,3 @@
     </div>
 </section>
 {% endblock %}
-

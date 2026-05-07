@@ -11,7 +11,9 @@
         {% if current_user %}
             <header class="topbar">
                 <a class="brand" href="{{ url_for('main.browse') }}">
-                    <span class="brand-mark">CC</span>
+                    <span class="brand-mark">
+                        <img class="brand-logo" src="{{ url_for('main.static', filename='images/owls-athletics-logo.png') }}" alt="Southern Connecticut State University Owls logo">
+                    </span>
                     <span>
                         <strong>Campus Closet</strong>
                         <small>SCSU student marketplace</small>
@@ -47,4 +49,3 @@
     </div>
 </body>
 </html>
-
