@@ -5,56 +5,51 @@
 {% block content %}
 <section class="panel form-panel">
     <div class="panel-heading">
-        <p class="eyebrow">Week 1 scaffold</p>
+        <p class="eyebrow">Student marketplace</p>
         <h1>Create Listing</h1>
-        <p class="lead">The layout and field names are started here so the backend and database team can connect to them next.</p>
+        <p class="lead">Share an item with other Southern students and choose where pickup works best.</p>
     </div>
 
     <form method="post" class="listing-form">
         <div class="field-group">
             <label for="title">Title</label>
-            <input id="title" name="title" type="text" placeholder="Desk lamp, jacket, calculator..." />
+            <input id="title" name="title" type="text" placeholder="Desk lamp, jacket, calculator..." value="{{ form_data.title }}" required />
         </div>
         <div class="field-group">
             <label for="category">Category</label>
-            <select id="category" name="category">
+            <select id="category" name="category" required>
                 {% for category in categories %}
-                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    <option value="{{ category.id }}" {% if form_data.category == category.id|string %}selected{% endif %}>{{ category.name }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="field-group">
             <label for="condition">Condition</label>
-            <select id="condition" name="condition">
-                <option>New</option>
-                <option>Very Good</option>
-                <option>Good</option>
-                <option>Fair</option>
+            <select id="condition" name="condition" required>
+                <option {% if form_data.condition == "New" %}selected{% endif %}>New</option>
+                <option {% if form_data.condition == "Very Good" %}selected{% endif %}>Very Good</option>
+                <option {% if form_data.condition == "Good" %}selected{% endif %}>Good</option>
+                <option {% if form_data.condition == "Fair" %}selected{% endif %}>Fair</option>
             </select>
         </div>
         <div class="field-group">
             <label for="pickup_location">Pickup location</label>
-            <input id="pickup_location" name="pickup_location" type="text" placeholder="Student Center, Buley Library..." />
+            <input id="pickup_location" name="pickup_location" type="text" placeholder="Student Center, Buley Library..." value="{{ form_data.pickup_location }}" required />
         </div>
         <div class="field-group full-width">
             <label for="availability">Availability</label>
-            <input id="availability" name="availability" type="text" placeholder="Available, Pending Pickup, Claimed..." />
+            <input id="availability" name="availability" type="text" placeholder="Available, Pending Pickup, Claimed..." value="{{ form_data.availability }}" required />
         </div>
         <div class="field-group full-width">
             <label for="description">Description</label>
-            <textarea id="description" name="description" rows="5" placeholder="Add the item details, any wear, and where pickup works best."></textarea>
+            <textarea id="description" name="description" rows="5" placeholder="Add the item details, any wear, and where pickup works best." required>{{ form_data.description }}</textarea>
         </div>
         <div class="field-group full-width">
             <label for="image_url">Optional image link</label>
-            <input id="image_url" name="image_url" type="text" placeholder="Image upload can be wired in next." />
+            <input id="image_url" name="image_url" type="url" placeholder="https://example.com/item-photo.jpg" value="{{ form_data.image_url }}" />
         </div>
 
-        <div class="callout">
-            This form is intentionally scaffolded instead of fully finished so your teammates can still implement and commit the database save flow.
-        </div>
-
-        <button type="submit" class="primary-button">Save Next-Step Placeholder</button>
+        <button type="submit" class="primary-button">Create Listing</button>
     </form>
 </section>
 {% endblock %}
-

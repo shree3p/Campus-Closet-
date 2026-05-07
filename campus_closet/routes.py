@@ -212,12 +212,102 @@ def listing_detail(listing_id):
 @login_required
 def create_listing():
     categories = Category.query.order_by(Category.name).all()
+    form_data = {
+        "title": "",
+        "category": "",
+        "condition": "",
+        "pickup_location": "",
+        "availability": "Available",
+        "description": "",
+        "image_url": "",
+    }
+
     if request.method == "POST":
-        flash(
-            "The create-listing form is scaffolded for Week 1. Saving listings is the next team step.",
-            "warning",
+        form_data.update(
+            {
+                "title": request.form.get("title", "").strip(),
+                "category": request.form.get("category", "").strip(),
+                "condition": request.form.get("condition", "").strip(),
+                "pickup_location": request.form.get("pickup_location", "").strip(),
+                "availability": request.form.get("availability", "").strip(),
+                "description": request.form.get("description", "").strip(),
+                "image_url": request.form.get("image_url", "").strip(),
+            }
         )
-    return render_template("create_listing.html", categories=categories)
+
+        required_fields = [
+            form_data["title"],
+            form_data["category"],
+            form_data["condition"],
+            form_data["pickup_location"],
+            form_data["availability"],
+            form_data["description"],
+        ]
+        if not all(required_fields):
+            flash("Please complete all required listing fields before saving.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        try:
+            category_id = int(form_data["category"])
+        except ValueError:
+            flash("Please choose a valid listing category.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        category = db.session.get(Category, category_id)
+        if category is None:
+            flash("Please choose a valid listing category.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        if len(form_data["title"]) > 150:
+            flash("Listing titles must be 150 characters or fewer.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        if len(form_data["condition"]) > 80:
+            flash("Condition must be 80 characters or fewer.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        if len(form_data["pickup_location"]) > 120:
+            flash("Pickup location must be 120 characters or fewer.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        if len(form_data["availability"]) > 40:
+            flash("Availability must be 40 characters or fewer.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        if len(form_data["image_url"]) > 255:
+            flash("Image links must be 255 characters or fewer.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        if form_data["image_url"] and not form_data["image_url"].startswith(("http://", "https://")):
+            flash("Image links should start with http:// or https://.", "error")
+            return render_template("create_listing.html", categories=categories, form_data=form_data)
+
+        user = get_current_user()
+        listing = Listing(
+            user_id=user.id,
+            category_id=category.id,
+            title=form_data["title"],
+            description=form_data["description"],
+            item_condition=form_data["condition"],
+            pickup_location=form_data["pickup_location"],
+            availability_status=form_data["availability"],
+            image_url=form_data["image_url"] or None,
+        )
+        db.session.add(listing)
+        db.session.flush()
+        db.session.add(
+            ActivityLog(
+                user_id=user.id,
+                action_type="create_listing",
+                description=f"User created listing #{listing.id}: {listing.title}.",
+            )
+        )
+        db.session.commit()
+
+        flash("Listing created successfully. It now appears on Browse.", "success")
+        return redirect(url_for("main.browse"))
+
+    return render_template("create_listing.html", categories=categories, form_data=form_data)
 
 
 @main_bp.route("/favorites")
