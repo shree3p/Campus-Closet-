@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Report Listing | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="panel form-panel">
+    <div class="panel-heading">
+        <p class="eyebrow">Report a listing</p>
+        <h1>Flag {{ listing.title }}</h1>
+        <p class="lead">Use this form if a listing feels inappropriate, unsafe, misleading, or against the rules of the campus marketplace.</p>
+    </div>
+
+    <div class="report-summary">
+        <span class="pill">{{ listing.category.name }}</span>
+        <strong>{{ listing.title }}</strong>
+        <span>Posted by {{ listing.owner.name }} (@{{ listing.owner.username }})</span>
+    </div>
+
+    <form method="post" class="listing-form">
+        <div class="field-group full-width">
+            <label for="reason">Reason</label>
+            <select id="reason" name="reason" required>
+                <option value="">Choose a reason</option>
+                {% for option in ["Inappropriate Content", "Spam or Scam", "Misleading Information", "Unsafe Item", "Harassment", "Other"] %}
+                    <option value="{{ option }}" {% if form_data.reason == option %}selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field-group full-width">
+            <label for="description">Extra details</label>
+            <textarea id="description" name="description" rows="5" placeholder="Share anything the admin should know when reviewing this report.">{{ form_data.description }}</textarea>
+        </div>
+
+        <div class="detail-actions">
+            <button type="submit" class="primary-button">Submit Report</button>
+            <a class="secondary-button" href="{{ url_for('main.listing_detail', listing_id=listing.id) }}">Back to Listing</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

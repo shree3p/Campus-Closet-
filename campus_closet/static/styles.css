@@ -164,6 +164,7 @@ a {
 .auth-copy {
     display: grid;
     align-content: start;
+    justify-items: center;
     gap: 1.2rem;
     padding: 3rem;
     background:
@@ -197,12 +198,14 @@ a {
 .auth-copy .lead {
     color: rgba(255, 255, 255, 0.86);
     max-width: 32rem;
+    text-align: center;
 }
 
 .auth-owl-panel {
     display: grid;
     gap: 0.8rem;
     width: min(320px, 100%);
+    justify-items: center;
     padding: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 24px;
@@ -234,6 +237,7 @@ a {
     margin-top: 0.25rem;
     color: rgba(255, 255, 255, 0.78);
     line-height: 1.6;
+    text-align: center;
 }
 
 .eyebrow {
@@ -292,6 +296,11 @@ a {
 .profile-label {
     margin-top: 0.25rem;
     color: rgba(22, 50, 79, 0.72);
+}
+
+.auth-copy .feature-card strong,
+.auth-copy .feature-card span {
+    color: rgba(255, 255, 255, 0.96);
 }
 
 .auth-form,
@@ -432,10 +441,24 @@ textarea:focus {
     margin-top: 1.5rem;
 }
 
-.listing-card,
-.detail-card {
+.report-grid {
     display: grid;
     gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+}
+
+.listing-card,
+.detail-card,
+.report-card {
+    display: grid;
+    gap: 1rem;
+}
+
+.report-card {
+    padding: 1.15rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(242, 248, 255, 0.98));
 }
 
 .saved-chip {
@@ -447,6 +470,20 @@ textarea:focus {
     font-weight: 800;
     color: #13673f;
     background: rgba(19, 138, 54, 0.12);
+}
+
+.report-summary {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(242, 248, 255, 0.98));
+}
+
+.report-summary strong {
+    font-size: 1.15rem;
 }
 
 .listing-top {
@@ -475,14 +512,36 @@ textarea:focus {
     color: #1b7d38;
 }
 
+.status-resolved {
+    background: rgba(19, 138, 54, 0.12);
+    color: #1b7d38;
+}
+
+.status-dismissed {
+    background: rgba(141, 155, 176, 0.16);
+    color: #4d6077;
+}
+
 .listing-card h2 {
     margin: 0;
     font-size: 1.35rem;
 }
 
+.report-card h2 {
+    margin: 0;
+    font-size: 1.28rem;
+}
+
 .listing-card p {
     margin: 0;
     color: rgba(22, 50, 79, 0.8);
+    line-height: 1.65;
+}
+
+.report-description,
+.report-meta-line {
+    margin: 0;
+    color: rgba(22, 50, 79, 0.78);
     line-height: 1.65;
 }
 

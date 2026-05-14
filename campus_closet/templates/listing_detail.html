@@ -49,14 +49,17 @@
                         {% if is_favorite %}Remove Favorite{% else %}Save to Favorites{% endif %}
                     </button>
                 </form>
+                <a class="secondary-button" href="{{ url_for('main.report_listing', listing_id=listing.id) }}">Report Listing</a>
             {% endif %}
-            {% if listing.user_id == current_user.id %}
+            {% if listing.user_id == current_user.id or current_user.is_admin %}
                 <form method="post" action="{{ url_for('main.delete_listing', listing_id=listing.id) }}" class="inline-form" onsubmit="return confirm('Delete this listing? This will remove it from Campus Closet.');">
-                    <input type="hidden" name="next" value="{{ url_for('main.profile') }}">
-                    <button type="submit" class="danger-button">Delete Listing</button>
+                    <input type="hidden" name="next" value="{{ url_for('main.admin_dashboard') if current_user.is_admin else url_for('main.profile') }}">
+                    <button type="submit" class="danger-button">{% if current_user.is_admin and listing.user_id != current_user.id %}Admin Delete Listing{% else %}Delete Listing{% endif %}</button>
                 </form>
             {% endif %}
-            <a class="secondary-button" href="{{ url_for('main.admin_dashboard') if current_user.is_admin else url_for('main.profile') }}">Report</a>
+            {% if current_user.is_admin %}
+                <a class="secondary-button" href="{{ url_for('main.admin_dashboard') }}">Admin Dashboard</a>
+            {% endif %}
         </div>
     </div>
 </section>

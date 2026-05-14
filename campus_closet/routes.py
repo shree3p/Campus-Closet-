@@ -80,9 +80,13 @@ def allowed_image_file(filename):
     return extension in ALLOWED_IMAGE_EXTENSIONS
 
 
+def report_status_badge(status):
+    return (status or "Pending").lower().replace(" ", "-")
+
+
 @main_bp.app_context_processor
 def inject_template_context():
-    return {"current_user": get_current_user()}
+    return {"current_user": get_current_user(), "report_status_badge": report_status_badge}
 
 
 @main_bp.route("/")
@@ -381,12 +385,13 @@ def create_listing():
 def delete_listing(listing_id):
     user = get_current_user()
     listing = db.get_or_404(Listing, listing_id)
-    if listing.user_id != user.id:
+    can_delete = listing.user_id == user.id or user.is_admin
+    if not can_delete:
         abort(403)
 
     next_url = request.form.get("next")
     if not next_url or not next_url.startswith("/"):
-        next_url = url_for("main.profile")
+        next_url = url_for("main.admin_dashboard") if user.is_admin else url_for("main.profile")
 
     listing_title = listing.title
     image_url = listing.image_url or ""
@@ -404,7 +409,7 @@ def delete_listing(listing_id):
         ActivityLog(
             user_id=user.id,
             action_type="delete_listing",
-            description=f"User deleted listing #{listing.id}: {listing_title}.",
+            description=f"{'Admin' if user.is_admin else 'User'} deleted listing #{listing.id}: {listing_title}.",
         )
     )
     db.session.delete(listing)
@@ -418,6 +423,66 @@ def delete_listing(listing_id):
 
     flash(f"{listing_title} has been removed from Campus Closet.", "success")
     return redirect(next_url)
+
+
+@main_bp.route("/listing/<int:listing_id>/report", methods=["GET", "POST"])
+@login_required
+def report_listing(listing_id):
+    listing = db.get_or_404(Listing, listing_id)
+    user = get_current_user()
+    if listing.user_id == user.id:
+        flash("You cannot report your own listing.", "warning")
+        return redirect(url_for("main.listing_detail", listing_id=listing.id))
+
+    form_data = {
+        "reason": "",
+        "description": "",
+    }
+
+    if request.method == "POST":
+        form_data["reason"] = request.form.get("reason", "").strip()
+        form_data["description"] = request.form.get("description", "").strip()
+
+        if not form_data["reason"]:
+            flash("Choose a reason for this report.", "error")
+            return render_template("report_listing.html", listing=listing, form_data=form_data)
+
+        existing_pending_report = Report.query.filter_by(
+            reporter_id=user.id,
+            listing_id=listing.id,
+            status="Pending",
+        ).first()
+        if existing_pending_report is not None:
+            flash("You already submitted a pending report for this listing.", "warning")
+            return redirect(url_for("main.listing_detail", listing_id=listing.id))
+
+        if len(form_data["reason"]) > 120:
+            flash("Report reason must be 120 characters or fewer.", "error")
+            return render_template("report_listing.html", listing=listing, form_data=form_data)
+
+        report = Report(
+            reporter_id=user.id,
+            listing_id=listing.id,
+            reported_user_id=listing.user_id,
+            reason=form_data["reason"],
+            description=form_data["description"] or None,
+            status="Pending",
+        )
+        db.session.add(report)
+        db.session.flush()
+        db.session.add(
+            ActivityLog(
+                user_id=user.id,
+                action_type="report_listing",
+                description=f"User reported listing #{listing.id}: {listing.title}.",
+            )
+        )
+        db.session.commit()
+
+        flash("Report submitted. An admin can now review this listing.", "success")
+        return redirect(url_for("main.listing_detail", listing_id=listing.id))
+
+    return render_template("report_listing.html", listing=listing, form_data=form_data)
 
 
 @main_bp.route("/listing/<int:listing_id>/favorite", methods=["POST"])
@@ -625,9 +690,48 @@ def profile():
     return render_template("profile.html", user=user, own_listings=own_listings)
 
 
+@main_bp.route("/admin/reports/<int:report_id>/update", methods=["POST"])
+@admin_required
+def update_report_status(report_id):
+    admin_user = get_current_user()
+    report = db.get_or_404(Report, report_id)
+    new_status = request.form.get("status", "").strip()
+    allowed_statuses = {"Resolved", "Dismissed"}
+
+    if new_status not in allowed_statuses:
+        flash("Choose a valid report action.", "error")
+        return redirect(url_for("main.admin_dashboard"))
+
+    report.status = new_status
+    report.reviewed_by_admin_id = admin_user.id
+    report.resolved_at = datetime.utcnow()
+    db.session.add(
+        ActivityLog(
+            user_id=admin_user.id,
+            action_type="review_report",
+            description=f"Admin marked report #{report.id} as {new_status.lower()}.",
+        )
+    )
+    db.session.commit()
+
+    flash(f"Report #{report.id} marked as {new_status}.", "success")
+    return redirect(url_for("main.admin_dashboard"))
+
+
 @main_bp.route("/admin")
 @admin_required
 def admin_dashboard():
+    pending_report_rows = (
+        Report.query.filter_by(status="Pending")
+        .order_by(Report.created_at.desc())
+        .all()
+    )
+    reviewed_report_rows = (
+        Report.query.filter(Report.status != "Pending")
+        .order_by(Report.resolved_at.desc(), Report.created_at.desc())
+        .limit(8)
+        .all()
+    )
     pending_reports = Report.query.filter_by(status="Pending").count()
     total_users = User.query.count()
     total_listings = Listing.query.count()
@@ -636,4 +740,6 @@ def admin_dashboard():
         pending_reports=pending_reports,
         total_users=total_users,
         total_listings=total_listings,
+        pending_report_rows=pending_report_rows,
+        reviewed_report_rows=reviewed_report_rows,
     )
