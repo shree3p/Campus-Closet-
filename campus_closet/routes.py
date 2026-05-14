@@ -1,7 +1,8 @@
 import os
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
+from zoneinfo import ZoneInfo
 
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, session, url_for
 from sqlalchemy import and_, or_
@@ -14,6 +15,7 @@ from .models import ActivityLog, Category, Conversation, Favorite, Listing, Mess
 main_bp = Blueprint("main", __name__, template_folder="templates", static_folder="static")
 
 ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+EASTERN_TIMEZONE = ZoneInfo("America/New_York")
 
 
 def login_required(view_func):
@@ -84,9 +86,30 @@ def report_status_badge(status):
     return (status or "Pending").lower().replace(" ", "-")
 
 
+def format_eastern_datetime(value, style="full"):
+    if value is None:
+        return ""
+
+    if value.tzinfo is None:
+        localized_value = value.replace(tzinfo=timezone.utc)
+    else:
+        localized_value = value
+
+    eastern_value = localized_value.astimezone(EASTERN_TIMEZONE)
+
+    if style == "short_date":
+        return eastern_value.strftime("%b %d")
+
+    return eastern_value.strftime("%b %d, %Y at %I:%M %p ET")
+
+
 @main_bp.app_context_processor
 def inject_template_context():
-    return {"current_user": get_current_user(), "report_status_badge": report_status_badge}
+    return {
+        "current_user": get_current_user(),
+        "report_status_badge": report_status_badge,
+        "format_eastern_datetime": format_eastern_datetime,
+    }
 
 
 @main_bp.route("/")

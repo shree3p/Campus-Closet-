@@ -21,7 +21,7 @@
                         <div class="conversation-row">
                             <strong>{{ summary.partner.name }}</strong>
                             {% if summary.latest_message %}
-                                <span class="conversation-time">{{ summary.latest_message.created_at.strftime("%b %d") }}</span>
+                                <span class="conversation-time">{{ format_eastern_datetime(summary.latest_message.created_at, "short_date") }}</span>
                             {% endif %}
                         </div>
                         <span class="conversation-label">{{ summary.conversation.listing.title }}</span>
@@ -59,7 +59,7 @@
                                 {% if message.sender_id == current_user.id %}You{% else %}{{ selected_partner.name }}{% endif %}
                             </strong>
                             <p>{{ message.message_text }}</p>
-                            <span class="message-time">{{ message.created_at.strftime("%b %d, %Y at %I:%M %p") }}</span>
+                            <span class="message-time">{{ format_eastern_datetime(message.created_at) }}</span>
                         </article>
                     {% endfor %}
                 {% else %}
