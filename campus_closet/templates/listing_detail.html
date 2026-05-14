@@ -50,6 +50,12 @@
                     </button>
                 </form>
             {% endif %}
+            {% if listing.user_id == current_user.id %}
+                <form method="post" action="{{ url_for('main.delete_listing', listing_id=listing.id) }}" class="inline-form" onsubmit="return confirm('Delete this listing? This will remove it from Campus Closet.');">
+                    <input type="hidden" name="next" value="{{ url_for('main.profile') }}">
+                    <button type="submit" class="danger-button">Delete Listing</button>
+                </form>
+            {% endif %}
             <a class="secondary-button" href="{{ url_for('main.admin_dashboard') if current_user.is_admin else url_for('main.profile') }}">Report</a>
         </div>
     </div>

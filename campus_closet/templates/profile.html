@@ -29,5 +29,52 @@
         </div>
     </div>
 </section>
-{% endblock %}
 
+<section class="panel">
+    <div class="panel-heading panel-heading-inline">
+        <div>
+            <p class="eyebrow">Your listings</p>
+            <h1>Manage Listings</h1>
+            <p class="lead">Open your items, remove a listing you no longer want posted, or create a new one when you have something else to share.</p>
+        </div>
+        <a class="secondary-button" href="{{ url_for('main.create_listing') }}">Create Listing</a>
+    </div>
+
+    {% if own_listings %}
+        <section class="listing-grid compact-grid">
+            {% for listing in own_listings %}
+                <article class="listing-card">
+                    <div class="listing-top">
+                        <span class="pill">{{ listing.category.name }}</span>
+                        <span class="status">{{ listing.availability_status }}</span>
+                    </div>
+                    <h2>{{ listing.title }}</h2>
+                    <p>{{ listing.description }}</p>
+                    <dl class="listing-meta">
+                        <div>
+                            <dt>Condition</dt>
+                            <dd>{{ listing.item_condition }}</dd>
+                        </div>
+                        <div>
+                            <dt>Pickup</dt>
+                            <dd>{{ listing.pickup_location }}</dd>
+                        </div>
+                    </dl>
+                    <div class="card-actions">
+                        <a class="text-link" href="{{ url_for('main.listing_detail', listing_id=listing.id) }}">View Listing</a>
+                        <form method="post" action="{{ url_for('main.delete_listing', listing_id=listing.id) }}" class="inline-form" onsubmit="return confirm('Delete this listing? This will remove it from Campus Closet.');">
+                            <input type="hidden" name="next" value="{{ url_for('main.profile') }}">
+                            <button type="submit" class="danger-button">Delete</button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+    {% else %}
+        <div class="empty-state">
+            <h2>No listings posted yet.</h2>
+            <p>Create your first listing to start sharing items with the Southern community.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

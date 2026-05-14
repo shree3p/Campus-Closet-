@@ -376,6 +376,50 @@ def create_listing():
     return render_template("create_listing.html", categories=categories, form_data=form_data)
 
 
+@main_bp.route("/listing/<int:listing_id>/delete", methods=["POST"])
+@login_required
+def delete_listing(listing_id):
+    user = get_current_user()
+    listing = db.get_or_404(Listing, listing_id)
+    if listing.user_id != user.id:
+        abort(403)
+
+    next_url = request.form.get("next")
+    if not next_url or not next_url.startswith("/"):
+        next_url = url_for("main.profile")
+
+    listing_title = listing.title
+    image_url = listing.image_url or ""
+
+    for conversation in list(listing.conversations):
+        db.session.delete(conversation)
+
+    for report in list(listing.reports):
+        report.listing_id = None
+
+    for review in list(listing.reviews):
+        review.listing_id = None
+
+    db.session.add(
+        ActivityLog(
+            user_id=user.id,
+            action_type="delete_listing",
+            description=f"User deleted listing #{listing.id}: {listing_title}.",
+        )
+    )
+    db.session.delete(listing)
+    db.session.commit()
+
+    if image_url.startswith("/static/uploads/"):
+        upload_name = image_url.rsplit("/", 1)[-1]
+        upload_path = os.path.join(current_app.config["LISTING_UPLOAD_FOLDER"], upload_name)
+        if os.path.exists(upload_path):
+            os.remove(upload_path)
+
+    flash(f"{listing_title} has been removed from Campus Closet.", "success")
+    return redirect(next_url)
+
+
 @main_bp.route("/listing/<int:listing_id>/favorite", methods=["POST"])
 @login_required
 def toggle_favorite(listing_id):
@@ -577,7 +621,8 @@ def send_message(conversation_id):
 @login_required
 def profile():
     user = get_current_user()
-    return render_template("profile.html", user=user)
+    own_listings = Listing.query.filter_by(user_id=user.id).order_by(Listing.created_at.desc()).all()
+    return render_template("profile.html", user=user, own_listings=own_listings)
 
 
 @main_bp.route("/admin")
