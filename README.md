@@ -1,21 +1,30 @@
 # Campus Closet
 
-Campus Closet is a campus-only marketplace and virtual thrift store for Southern Connecticut State University students. The goal of the application is to give students a simple place to share clothing, dorm furniture, school supplies, and other useful items within the SCSU community.
+Campus Closet is a Southern Connecticut State University student marketplace created for CSC 330. The application gives SCSU students a campus-only platform where they can register with a Southern email, post listings, browse available items, save favorites, message other students, and report listings when moderation is needed.
 
-The application uses a Southern email login system, a listings browse page, listing detail pages, and starter sections for creating listings, favorites, messaging, profiles, and admin moderation. It is built with Flask, SQLite, HTML templates, and CSS.
+The project is built with Flask, SQLite, HTML, and CSS. It is designed to run locally, and the database is created automatically on first launch.
 
-## Current Features
+## Team Roles
 
-- Southern-themed login and registration flow
-- `@southernct.edu` email validation
-- Browse listings page with sample items
-- Listing detail page
-- Starter navigation for create listing, favorites, messages, profile, and admin
-- SQLite database created automatically when the app starts
+- Shree Patel: Team Lead, UI design, front-end development, feature integration, and project coordination
+- Shiv Patel: Backend workflows, listing logic, and route implementation
+- Jeremiah Trail: Database planning, ER relationship alignment, and schema support
+- Tavoy Arnett: Troubleshooting, QA support, and admin feature assistance
 
-## Quick Start
+## How The Application Works
 
-Run these commands from the project folder:
+- Students create an account using a valid `@southernct.edu` email address
+- Users can browse listings by category or keyword
+- Students can create their own listings and upload an image from their computer
+- Listings can be saved to Favorites for later viewing
+- Users can message listing owners through the built-in messaging system
+- Listings can be reported to the admin for moderation review
+- Listing owners can delete their own posts when they are no longer available
+- The admin account can review reports and remove listings when necessary
+
+## Run Instructions
+
+From the project folder, run:
 
 ```bash
 python3 -m venv .venv
@@ -28,50 +37,31 @@ Then open:
 
 `http://127.0.0.1:5051`
 
-## Teammate Setup From GitHub
+## Login Credentials
 
-If you are opening the project from GitHub for the first time, run:
+Professor test student account:
 
-```bash
-git clone https://github.com/shree3p/Campus-Closet-.git
-cd Campus-Closet-
-code .
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-python3 app.py
-```
-
-Then open:
-
-`http://127.0.0.1:5051`
-
-If you already cloned the repo before and just need the newest version, run:
-
-```bash
-git pull origin main
-```
-
-## Demo Login
-
-- Student: `campusdemo@southernct.edu`
+- Email: `campusdemo@southernct.edu`
 - Password: `CampusCloset123!`
 
-- Admin: `admin@southernct.edu`
+Professor test admin account:
+
+- Email: `admin@southernct.edu`
 - Password: `CampusClosetAdmin123!`
 
-You can also register a new account using any valid `@southernct.edu` email address.
+You can also register a new student account using any valid `@southernct.edu` email address.
 
 ## Main Files
 
-- `app.py` starts the Flask application
-- `campus_closet/routes.py` contains the page routes and login logic
-- `campus_closet/models.py` contains the database models
-- `campus_closet/templates/` contains the HTML pages
-- `campus_closet/static/styles.css` contains the site styling
+- `app.py`: starts the Flask application
+- `requirements.txt`: lists the Python dependencies
+- `campus_closet/models.py`: defines the database models
+- `campus_closet/routes.py`: contains the route logic and application behavior
+- `campus_closet/templates/`: stores the HTML templates
+- `campus_closet/static/`: stores the stylesheet, logo, and upload folder
 
 ## Notes
 
-- This project is meant for local development and class demonstration
-- The database is SQLite, so no separate database setup is needed
-- The app creates its database automatically the first time it runs
+- This project is intended to be run locally.
+- SQLite data is generated automatically in the `instance/` folder on first run.
+- Uploaded listing images are stored in `campus_closet/static/uploads/`.
