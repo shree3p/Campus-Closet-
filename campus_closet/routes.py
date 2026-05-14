@@ -247,9 +247,7 @@ def listing_detail(listing_id):
     is_favorite = (
         Favorite.query.filter_by(user_id=user.id, listing_id=listing.id).first() is not None
     )
-    existing_conversation = None
-    if listing.user_id != user.id:
-        existing_conversation = get_listing_conversation(listing.id, user.id, listing.user_id)
+    existing_conversation = get_listing_conversation(listing.id, user.id, listing.user_id)
     return render_template(
         "listing_detail.html",
         listing=listing,
@@ -369,10 +367,6 @@ def toggle_favorite(listing_id):
     if not next_url or not next_url.startswith("/"):
         next_url = url_for("main.listing_detail", listing_id=listing.id)
 
-    if listing.user_id == user.id:
-        flash("You do not need to save your own listing.", "warning")
-        return redirect(next_url)
-
     favorite = Favorite.query.filter_by(user_id=user.id, listing_id=listing.id).first()
     if favorite is None:
         db.session.add(Favorite(user_id=user.id, listing_id=listing.id))
@@ -416,10 +410,6 @@ def favorites():
 def start_conversation(listing_id):
     user = get_current_user()
     listing = db.get_or_404(Listing, listing_id)
-
-    if listing.user_id == user.id:
-        flash("This listing belongs to you, so there is no one else to message here.", "warning")
-        return redirect(url_for("main.listing_detail", listing_id=listing.id))
 
     conversation = get_listing_conversation(listing.id, user.id, listing.user_id)
     if conversation is None:
