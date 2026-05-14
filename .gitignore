@@ -5,4 +5,5 @@ __pycache__/
 .venv/
 instance/
 *.db
-
+campus_closet/static/uploads/*
+!campus_closet/static/uploads/.gitkeep

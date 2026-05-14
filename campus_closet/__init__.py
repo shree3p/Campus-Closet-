@@ -11,6 +11,10 @@ def create_app():
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "campus-closet-week-one")
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(app.instance_path, 'campus_closet.db')}"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
+    app.config["LISTING_UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
+
+    os.makedirs(app.config["LISTING_UPLOAD_FOLDER"], exist_ok=True)
 
     db.init_app(app)
 

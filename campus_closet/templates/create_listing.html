@@ -10,7 +10,7 @@
         <p class="lead">Share an item with other Southern students and choose where pickup works best.</p>
     </div>
 
-    <form method="post" class="listing-form">
+    <form method="post" class="listing-form" enctype="multipart/form-data">
         <div class="field-group">
             <label for="title">Title</label>
             <input id="title" name="title" type="text" placeholder="Desk lamp, jacket, calculator..." value="{{ form_data.title }}" required />
@@ -45,11 +45,59 @@
             <textarea id="description" name="description" rows="5" placeholder="Add the item details, any wear, and where pickup works best." required>{{ form_data.description }}</textarea>
         </div>
         <div class="field-group full-width">
-            <label for="image_url">Optional image link</label>
-            <input id="image_url" name="image_url" type="url" placeholder="https://example.com/item-photo.jpg" value="{{ form_data.image_url }}" />
+            <label for="image_file">Upload Image</label>
+            <div class="upload-dropzone" id="upload-dropzone">
+                <input id="image_file" name="image_file" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" class="upload-input" />
+                <label for="image_file" class="upload-label">
+                    <strong>Drag and drop an image here</strong>
+                    <span>or click to open Finder and choose a file from your computer.</span>
+                    <small>Accepted files: PNG, JPG, JPEG, GIF, and WEBP</small>
+                    <span class="upload-filename" id="upload-filename">No file selected yet.</span>
+                </label>
+            </div>
         </div>
 
         <button type="submit" class="primary-button">Create Listing</button>
     </form>
 </section>
+
+<script>
+    const imageInput = document.getElementById("image_file");
+    const dropzone = document.getElementById("upload-dropzone");
+    const filenameText = document.getElementById("upload-filename");
+
+    const updateFilename = () => {
+        if (imageInput.files && imageInput.files.length > 0) {
+            filenameText.textContent = imageInput.files[0].name;
+        } else {
+            filenameText.textContent = "No file selected yet.";
+        }
+    };
+
+    imageInput.addEventListener("change", updateFilename);
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            dropzone.classList.add("is-dragging");
+        });
+    });
+
+    ["dragleave", "dragend", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            if (eventName !== "drop") {
+                dropzone.classList.remove("is-dragging");
+            }
+        });
+    });
+
+    dropzone.addEventListener("drop", (event) => {
+        dropzone.classList.remove("is-dragging");
+        if (event.dataTransfer.files.length > 0) {
+            imageInput.files = event.dataTransfer.files;
+            updateFilename();
+        }
+    });
+</script>
 {% endblock %}

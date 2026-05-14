@@ -1,14 +1,19 @@
+import os
+from uuid import uuid4
 from datetime import datetime
 from functools import wraps
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, session, url_for
 from sqlalchemy import and_, or_
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 from .models import ActivityLog, Category, Conversation, Favorite, Listing, Message, Profile, Report, User, db
 
 
 main_bp = Blueprint("main", __name__, template_folder="templates", static_folder="static")
+
+ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
 
 def login_required(view_func):
@@ -66,6 +71,13 @@ def get_conversation_partner(conversation, user_id):
     if conversation.participant_one_id == user_id:
         return conversation.participant_two
     return conversation.participant_one
+
+
+def allowed_image_file(filename):
+    if "." not in filename:
+        return False
+    extension = filename.rsplit(".", 1)[1].lower()
+    return extension in ALLOWED_IMAGE_EXTENSIONS
 
 
 @main_bp.app_context_processor
@@ -247,7 +259,9 @@ def listing_detail(listing_id):
     is_favorite = (
         Favorite.query.filter_by(user_id=user.id, listing_id=listing.id).first() is not None
     )
-    existing_conversation = get_listing_conversation(listing.id, user.id, listing.user_id)
+    existing_conversation = None
+    if listing.user_id != user.id:
+        existing_conversation = get_listing_conversation(listing.id, user.id, listing.user_id)
     return render_template(
         "listing_detail.html",
         listing=listing,
@@ -267,7 +281,6 @@ def create_listing():
         "pickup_location": "",
         "availability": "Available",
         "description": "",
-        "image_url": "",
     }
 
     if request.method == "POST":
@@ -279,9 +292,9 @@ def create_listing():
                 "pickup_location": request.form.get("pickup_location", "").strip(),
                 "availability": request.form.get("availability", "").strip(),
                 "description": request.form.get("description", "").strip(),
-                "image_url": request.form.get("image_url", "").strip(),
             }
         )
+        image_file = request.files.get("image_file")
 
         required_fields = [
             form_data["title"],
@@ -322,13 +335,18 @@ def create_listing():
             flash("Availability must be 40 characters or fewer.", "error")
             return render_template("create_listing.html", categories=categories, form_data=form_data)
 
-        if len(form_data["image_url"]) > 255:
-            flash("Image links must be 255 characters or fewer.", "error")
-            return render_template("create_listing.html", categories=categories, form_data=form_data)
+        image_url = None
+        if image_file and image_file.filename:
+            if not allowed_image_file(image_file.filename):
+                flash("Upload a PNG, JPG, JPEG, GIF, or WEBP image file.", "error")
+                return render_template("create_listing.html", categories=categories, form_data=form_data)
 
-        if form_data["image_url"] and not form_data["image_url"].startswith(("http://", "https://")):
-            flash("Image links should start with http:// or https://.", "error")
-            return render_template("create_listing.html", categories=categories, form_data=form_data)
+            original_name = secure_filename(image_file.filename)
+            extension = os.path.splitext(original_name)[1].lower()
+            stored_name = f"{uuid4().hex}{extension}"
+            save_path = os.path.join(current_app.config["LISTING_UPLOAD_FOLDER"], stored_name)
+            image_file.save(save_path)
+            image_url = url_for("main.static", filename=f"uploads/{stored_name}")
 
         user = get_current_user()
         listing = Listing(
@@ -339,7 +357,7 @@ def create_listing():
             item_condition=form_data["condition"],
             pickup_location=form_data["pickup_location"],
             availability_status=form_data["availability"],
-            image_url=form_data["image_url"] or None,
+            image_url=image_url,
         )
         db.session.add(listing)
         db.session.flush()
@@ -366,6 +384,10 @@ def toggle_favorite(listing_id):
     next_url = request.form.get("next")
     if not next_url or not next_url.startswith("/"):
         next_url = url_for("main.listing_detail", listing_id=listing.id)
+
+    if listing.user_id == user.id:
+        flash("You do not need to save your own listing.", "warning")
+        return redirect(next_url)
 
     favorite = Favorite.query.filter_by(user_id=user.id, listing_id=listing.id).first()
     if favorite is None:
@@ -410,6 +432,10 @@ def favorites():
 def start_conversation(listing_id):
     user = get_current_user()
     listing = db.get_or_404(Listing, listing_id)
+
+    if listing.user_id == user.id:
+        flash("This listing belongs to you, so there is no one else to message here.", "warning")
+        return redirect(url_for("main.listing_detail", listing_id=listing.id))
 
     conversation = get_listing_conversation(listing.id, user.id, listing.user_id)
     if conversation is None:

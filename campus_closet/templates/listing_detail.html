@@ -37,17 +37,19 @@
         </dl>
 
         <div class="detail-actions">
-            <form method="post" action="{{ url_for('main.start_conversation', listing_id=listing.id) }}" class="inline-form">
-                <button type="submit" class="primary-button">
-                    {% if existing_conversation %}Open Conversation{% else %}Message Owner{% endif %}
-                </button>
-            </form>
-            <form method="post" action="{{ url_for('main.toggle_favorite', listing_id=listing.id) }}" class="inline-form">
-                <input type="hidden" name="next" value="{{ url_for('main.listing_detail', listing_id=listing.id) }}">
-                <button type="submit" class="secondary-button">
-                    {% if is_favorite %}Remove Favorite{% else %}Save to Favorites{% endif %}
-                </button>
-            </form>
+            {% if listing.user_id != current_user.id %}
+                <form method="post" action="{{ url_for('main.start_conversation', listing_id=listing.id) }}" class="inline-form">
+                    <button type="submit" class="primary-button">
+                        {% if existing_conversation %}Open Conversation{% else %}Message Owner{% endif %}
+                    </button>
+                </form>
+                <form method="post" action="{{ url_for('main.toggle_favorite', listing_id=listing.id) }}" class="inline-form">
+                    <input type="hidden" name="next" value="{{ url_for('main.listing_detail', listing_id=listing.id) }}">
+                    <button type="submit" class="secondary-button">
+                        {% if is_favorite %}Remove Favorite{% else %}Save to Favorites{% endif %}
+                    </button>
+                </form>
+            {% endif %}
             <a class="secondary-button" href="{{ url_for('main.admin_dashboard') if current_user.is_admin else url_for('main.profile') }}">Report</a>
         </div>
     </div>
