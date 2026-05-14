@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Favorites | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="panel-heading panel-heading-inline">
+        <div>
+            <p class="eyebrow">Saved listings</p>
+            <h1>Your Favorites</h1>
+            <p class="lead">Keep the listings you want to revisit in one place, then jump back in when you are ready.</p>
+        </div>
+        <a class="secondary-button" href="{{ url_for('main.browse') }}">Browse More Listings</a>
+    </div>
+</section>
+
+{% if favorite_rows %}
+<section class="listing-grid">
+    {% for favorite in favorite_rows %}
+        <article class="listing-card">
+            <div class="listing-top">
+                <span class="pill">{{ favorite.listing.category.name }}</span>
+                <span class="status">{{ favorite.listing.availability_status }}</span>
+            </div>
+            <h2>{{ favorite.listing.title }}</h2>
+            <p>{{ favorite.listing.description }}</p>
+            <dl class="listing-meta">
+                <div>
+                    <dt>Condition</dt>
+                    <dd>{{ favorite.listing.item_condition }}</dd>
+                </div>
+                <div>
+                    <dt>Pickup</dt>
+                    <dd>{{ favorite.listing.pickup_location }}</dd>
+                </div>
+                <div>
+                    <dt>Saved</dt>
+                    <dd>{{ favorite.saved_at.strftime("%b %d, %Y") }}</dd>
+                </div>
+                <div>
+                    <dt>Owner</dt>
+                    <dd>@{{ favorite.listing.owner.username }}</dd>
+                </div>
+            </dl>
+            <div class="card-actions">
+                <a class="text-link" href="{{ url_for('main.listing_detail', listing_id=favorite.listing.id) }}">View Details</a>
+                <form method="post" action="{{ url_for('main.start_conversation', listing_id=favorite.listing.id) }}" class="inline-form">
+                    <button type="submit" class="secondary-button">Message Owner</button>
+                </form>
+                <form method="post" action="{{ url_for('main.toggle_favorite', listing_id=favorite.listing.id) }}" class="inline-form">
+                    <input type="hidden" name="next" value="{{ url_for('main.favorites') }}">
+                    <button type="submit" class="secondary-button">Remove</button>
+                </form>
+            </div>
+        </article>
+    {% endfor %}
+</section>
+{% else %}
+<section class="panel empty-state">
+    <h2>No favorites yet.</h2>
+    <p>Open any listing and save it to build your favorites list.</p>
+</section>
+{% endif %}
+{% endblock %}

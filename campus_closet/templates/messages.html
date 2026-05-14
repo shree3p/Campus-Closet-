@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Messages | Campus Closet{% endblock %}
+
+{% block content %}
+<section class="messages-layout">
+    <aside class="panel messages-sidebar">
+        <div class="messages-sidebar-header">
+            <p class="eyebrow">Student conversations</p>
+            <h1>Messages</h1>
+            <p class="lead">Keep up with pickup plans, item questions, and follow-ups with other students.</p>
+        </div>
+
+        {% if conversation_summaries %}
+            <div class="conversation-list">
+                {% for summary in conversation_summaries %}
+                    <a
+                        class="conversation-link {% if selected_conversation and selected_conversation.id == summary.conversation.id %}is-active{% endif %}"
+                        href="{{ url_for('main.messages', conversation=summary.conversation.id) }}"
+                    >
+                        <div class="conversation-row">
+                            <strong>{{ summary.partner.name }}</strong>
+                            {% if summary.latest_message %}
+                                <span class="conversation-time">{{ summary.latest_message.created_at.strftime("%b %d") }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="conversation-label">{{ summary.conversation.listing.title }}</span>
+                        <p class="conversation-preview">{{ summary.preview_text }}</p>
+                        {% if summary.unread_count %}
+                            <span class="conversation-badge">{{ summary.unread_count }}</span>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="messages-empty">
+                <h2>No conversations yet.</h2>
+                <p>Use the Message Owner button on a listing to start talking with another student.</p>
+            </div>
+        {% endif %}
+    </aside>
+
+    <section class="panel messages-thread">
+        {% if selected_conversation %}
+            <div class="messages-thread-header">
+                <div>
+                    <p class="eyebrow">Conversation</p>
+                    <h2>{{ selected_partner.name }}</h2>
+                    <p class="lead">About: {{ selected_conversation.listing.title }}</p>
+                </div>
+                <a class="secondary-button" href="{{ url_for('main.listing_detail', listing_id=selected_conversation.listing.id) }}">View Listing</a>
+            </div>
+
+            <div class="message-stream">
+                {% if selected_messages %}
+                    {% for message in selected_messages %}
+                        <article class="message-bubble {% if message.sender_id == current_user.id %}mine{% else %}theirs{% endif %}">
+                            <strong class="message-author">
+                                {% if message.sender_id == current_user.id %}You{% else %}{{ selected_partner.name }}{% endif %}
+                            </strong>
+                            <p>{{ message.message_text }}</p>
+                            <span class="message-time">{{ message.created_at.strftime("%b %d, %Y at %I:%M %p") }}</span>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <div class="messages-empty in-thread">
+                        <h2>Conversation started.</h2>
+                        <p>Send the first message to start planning pickup or ask a quick question.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="message-compose">
+                <form method="post" action="{{ url_for('main.send_message', conversation_id=selected_conversation.id) }}">
+                    <label for="message_text">Message {{ selected_partner.name }}</label>
+                    <textarea id="message_text" name="message_text" rows="4" placeholder="Ask about pickup time, condition, or anything else you need to know." required></textarea>
+                    <button type="submit" class="primary-button">Send Message</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="messages-empty in-thread">
+                <h2>Pick a conversation to get started.</h2>
+                <p>Your messages will show up here once you open a listing and contact the owner.</p>
+                <a class="secondary-button" href="{{ url_for('main.browse') }}">Browse Listings</a>
+            </div>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

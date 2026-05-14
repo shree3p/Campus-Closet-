@@ -11,19 +11,19 @@
     <div class="section-grid">
         <a class="section-tile" href="{{ url_for('main.create_listing') }}">
             <strong>Create Listing</strong>
-            <span>Form structure started</span>
+            <span>Share something useful with other Southern students.</span>
         </a>
         <a class="section-tile" href="{{ url_for('main.favorites') }}">
             <strong>Favorites</strong>
-            <span>Placeholder ready for bridge logic</span>
+            <span>{{ saved_count }} saved item{% if saved_count != 1 %}s{% endif %} ready to revisit.</span>
         </a>
         <a class="section-tile" href="{{ url_for('main.messages') }}">
             <strong>Messages</strong>
-            <span>Conversation area prepared</span>
+            <span>{{ conversation_count }} conversation{% if conversation_count != 1 %}s{% endif %} with other students.</span>
         </a>
         <a class="section-tile" href="{{ url_for('main.profile') }}">
             <strong>Profile</strong>
-            <span>Starter account summary</span>
+            <span>View your account details and campus contact preferences.</span>
         </a>
     </div>
 </section>
@@ -55,6 +55,9 @@
                 <span class="status">{{ listing.availability_status }}</span>
             </div>
             <h2>{{ listing.title }}</h2>
+            {% if listing.id in favorite_listing_ids %}
+                <span class="saved-chip">Saved in favorites</span>
+            {% endif %}
             <p>{{ listing.description }}</p>
             <dl class="listing-meta">
                 <div>
